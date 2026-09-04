@@ -44,6 +44,8 @@
       font-size: 1.6rem; font-weight: 700; letter-spacing: 1px;
     }
     .card { border: 1px solid #e2e8f0; border-radius: 12px; transition: box-shadow .15s ease; }
+    .card-logo { height: 40px; width: auto; max-width: 200px; object-fit: contain; align-self: flex-start; }
+    .game-hero { border-radius: 8px; width: 100%; height: 200px; object-fit: cover; object-position: top; }
     .card:hover { box-shadow: 0 6px 24px rgba(15, 23, 42, .08); }
     .card a.stretched-link { text-decoration: none; }
     .badge-soft {
@@ -91,6 +93,7 @@
       <div class="row g-4">
         <div class="col-md-6">
           <div class="card h-100 p-4 position-relative">
+            <img src="/images/braintek-logo.svg" alt="Braintek logo" class="card-logo mb-3">
             <span class="badge badge-soft rounded-pill align-self-start mb-2">Managed IT</span>
             <h3 class="h5 mb-2">Braintek</h3>
             <p class="mb-2 text-secondary">
@@ -103,6 +106,7 @@
         </div>
         <div class="col-md-6">
           <div class="card h-100 p-4 position-relative">
+            <img src="/images/scaleforms-logo.svg" alt="Scaleforms logo" class="card-logo mb-3">
             <span class="badge badge-soft rounded-pill align-self-start mb-2">Scale service software</span>
             <h3 class="h5 mb-2">Scaleforms</h3>
             <p class="mb-2 text-secondary">
@@ -115,6 +119,7 @@
         </div>
         <div class="col-md-6">
           <div class="card h-100 p-4 position-relative">
+            <img src="/images/workorders-logo.png" alt="Workorders logo" class="card-logo mb-3" style="border-radius: 8px;">
             <span class="badge badge-soft rounded-pill align-self-start mb-2">Field service</span>
             <h3 class="h5 mb-2">Workorders</h3>
             <p class="mb-2 text-secondary">
@@ -127,6 +132,7 @@
         </div>
         <div class="col-md-6">
           <div class="card h-100 p-4 position-relative">
+            <img src="/images/handbook44-logo.svg" alt="Handbook44 logo" class="card-logo mb-3">
             <span class="badge badge-soft rounded-pill align-self-start mb-2">Free tool</span>
             <h3 class="h5 mb-2">Handbook44</h3>
             <p class="mb-2 text-secondary">
@@ -149,6 +155,7 @@
       <div class="row g-4">
         <div class="col-md-6">
           <div class="card h-100 p-4 position-relative">
+            <img src="/images/games/emberfall-intro.webp" alt="Emberfall title screen" class="game-hero mb-3">
             <span class="badge badge-soft rounded-pill align-self-start mb-2">Dungeon crawl</span>
             <h3 class="h5 mb-2">Emberfall</h3>
             <p class="mb-2 text-secondary">
@@ -156,6 +163,18 @@
               deep you can get.
             </p>
             <a href="/games/emberfall.html" class="stretched-link fw-semibold">Play Emberfall</a>
+          </div>
+        </div>
+        <div class="col-md-6">
+          <div class="card h-100 p-4 position-relative">
+            <img src="/images/games/create-a-hero.webp" alt="Emberfall hero creation screen" class="game-hero mb-3">
+            <span class="badge badge-soft rounded-pill align-self-start mb-2">Character builder</span>
+            <h3 class="h5 mb-2">Forge a hero</h3>
+            <p class="mb-2 text-secondary">
+              Pick a class, roll your stats, and choose a difficulty before
+              descending into the dungeon.
+            </p>
+            <a href="/games/emberfall.html" class="stretched-link fw-semibold">Start playing</a>
           </div>
         </div>
       </div>

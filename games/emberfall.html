@@ -3,8 +3,10 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, maximum-scale=1.0, user-scalable=no" />
+<link rel="icon" href="data:image/svg+xml,<svg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 100 100%27><rect width=%27100%27 height=%27100%27 rx=%2720%27 fill=%27%23140d0a%27/><text y=%27.88em%27 x=%2750%27 text-anchor=%27middle%27 font-size=%2778%27>🐉</text></svg>">
 <title>EMBERFALL — A Dungeon Crawl</title>
 <meta name="description" content="A turn-based dungeon crawler. Build a hero, clear the dungeons beneath Emberfall, and face the Red Dragon." />
+<link rel="canonical" href="https://www.braintek.com/games/emberfall" />
 <meta name="theme-color" content="#1a0f0a" />
 <meta name="mobile-web-app-capable" content="yes" />
 <meta name="apple-mobile-web-app-capable" content="yes" />
@@ -42,11 +44,9 @@
     backdrop-filter:blur(4px);transition:.15s;padding:0;line-height:1;}
   #soundBtn:hover{border-color:var(--gold);}
   #soundBtn.muted{opacity:.5;}
-  #cheatBtn{position:fixed;bottom:max(env(safe-area-inset-bottom),10px);left:10px;z-index:60;
-    border:1px solid var(--gold);background:rgba(58,41,18,.92);color:var(--gold);font-size:13px;
-    padding:7px 12px;border-radius:18px;cursor:pointer;line-height:1;font-family:var(--mono);letter-spacing:.06em;
-    box-shadow:0 3px 12px rgba(0,0,0,.45);}
-  #cheatBtn:active{transform:scale(.95);}
+  #cheatBtn{position:fixed;bottom:max(env(safe-area-inset-bottom),6px);left:6px;z-index:60;width:26px;height:26px;
+    border:none;background:transparent;color:var(--ink-dim);opacity:.08;font-size:18px;cursor:pointer;line-height:1;padding:0;}
+  #cheatBtn:active{opacity:.5;}
   #installBtn{position:fixed;bottom:max(env(safe-area-inset-bottom),14px);left:50%;transform:translateX(-50%);z-index:40;
     border:1px solid var(--gold);background:rgba(58,41,18,.95);color:var(--gold);font-family:var(--mono);font-size:12px;letter-spacing:.08em;
     padding:9px 16px;border-radius:20px;cursor:pointer;box-shadow:0 4px 18px rgba(0,0,0,.5),0 0 16px var(--gold-glow);backdrop-filter:blur(4px);}
@@ -231,11 +231,16 @@
 </style>
 </head>
 <body>
+<header style="position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap">
+  <h1>Emberfall — A Free Turn-Based Dungeon Crawler You Can Play in Your Browser</h1>
+  <p>Emberfall is a free turn-based dungeon crawler from Braintek. Create a hero, choose a class, and descend through the dungeons beneath the town of Emberfall — fighting monsters, collecting weapons and armor, leveling up, and facing the Red Dragon in the final chapter. The game runs entirely in your browser with nothing to install, works on desktop and mobile, and saves your progress automatically.</p>
+  <p>Braintek built Emberfall as a demonstration of what modern AI-assisted development can produce. Read the full story of <a href="https://www.braintek.com/resources/how-i-built-a-dungeon-game-with-ai">how we built this dungeon game with AI</a>, or learn more about <a href="https://www.braintek.com/">Braintek, a managed IT services provider in Houston and Dallas–Fort Worth</a>.</p>
+</header>
 <div class="grain"></div>
 <div class="vig"></div>
 <div id="app">
   <button id="soundBtn" data-act="mute" title="Toggle sound" aria-label="Toggle sound">🔊</button>
-  <button id="cheatBtn" data-act="cheat" title="Dev menu" aria-label="dev">🛠️ Dev</button>
+  <button id="cheatBtn" data-act="cheat" title="" aria-label="dev">·</button>
   <div class="topbar hidden" id="topbar"></div>
   <div class="view"><div class="wrap" id="screen"></div></div>
 </div>
@@ -243,8 +248,14 @@
 "use strict";
 
 /* ===== VERSION ===== */
-const VERSION="3.6";
+const VERSION="3.9";
+const _CL39={v:"3.9",notes:["Your save can travel: Export/Import on the title screen turns your hero into a code you can copy between devices or keep as a backup.","New \uD83D\uDCD6 How to Play codex on the title screen explains every system \u2014 ranks, wards, the forge, familiars, weaknesses.","Every monster now has a chapter-themed weakness (beasts fear spellfire, cultists fall to steel, the undead are unmade by essence) \u2014 matching it hits ~1.8x, so your loadout matters in every fight.","Added Greater and Superior Potions at higher-rank apothecaries \u2014 healing that keeps pace with veteran heroes. Grand Elixir price corrected.","Basic attacks now build +1 Focus, so essence powers flow mid-fight; Defend remains the fast recharge.","Familiars now share your bond \u2014 each extra one bound slightly reduces individual power, so five companions support you without fighting the war for you.","Tucked the dev tools back behind the faint dot in the corner."]};
+const _CL38={v:"3.8",notes:["THE MENAGERIE OPENS: bind familiars that fight beside you on their own \u2014 a shape-shifting Emberwyrm, a Blood Leech that feeds you what it drinks, a hovering Rune Turtle that wards you, a Storm Raven that lashes every foe, an Ash Phoenix that raises you from death once per battle, and more. Twelve to collect across the ranks.","You can bind 1 familiar at Iron, growing with rank up to 5 at Gold \u2014 Mages and Clerics bind an extra one at Bronze and Silver.","Your essences now deepen automatically as you rank up (Bronze/Silver \u2192 Lv II, Gold/Diamond \u2192 Lv III) \u2014 leveling them faster through use still works."]};
+const _CL37={v:"3.7",notes:["THE FORGE AWAKENS: gear can now ascend with you. Take a favorite weapon or armor up a rank at the blacksmith \u2014 each forging costs gold plus a Quintessence of the target rank, and grants +8 ATK (weapons) or +6 DEF and +2 ward (armor).","Added Quintessences \u2014 Bronze, Silver, Gold, and Diamond forging fuel, found rarely in treasure hoards and boss lairs, or bought (dearly) at the Apothecary.","Armor now WARDS against magic: every advanced armor carries a ward stat that reduces magic damage, so plate matters against sorcerers, liches, and witches \u2014 the Warded Plate finally wards.","Rebalanced the campaign's back half: Malphas, Vorthrak, and the Witch Queen's forms were mathematically unbeatable for an on-level hero; their numbers and scaling are now tuned so every chapter boss is a hard fight you win by using your kit \u2014 not a wall."]};
 const CHANGELOG=[
+  _CL39,
+  _CL38,
+  _CL37,
   {v:"3.6",notes:["Every town now has its own scene \u2014 a themed backdrop that matches the place and the threat haunting it: the ember-lit frontier of Emberfall, the cold mountain mines of Hollowmere, the ash and cult-fire of Ashfall, the foggy graves of Gravemoor, and the witching woods of Hexwood. The chapter's monster looms as a shadow over each. You'll glimpse the next town when you clear a chapter, too."]},
   {v:"3.5",notes:["Every rank now has a real arsenal. The blacksmith stocks three weapons and three armor pieces at each rank (Bronze, Silver, Gold, Diamond), on top of everything below \u2014 so there's always a choice to buy.","Added rare loot-only \u2726 special gear \u2014 one standout weapon and armor per rank, found only by exploring (never sold). You'll occasionally turn up a piece a rank above you; keep or sell it until you advance, then wield it."]},
   {v:"3.4",notes:["Dungeon maps are no longer tidy squares \u2014 they're randomized in size and shape, with carved-out gaps so the layout feels like real caverns. Some are small, some sprawl; some run long or wide. Every chamber is still guaranteed reachable."]},
@@ -366,36 +377,38 @@ const WEAPONS={
 const ARMORS={
   none:{name:"Traveler's Clothes",ic:"\uD83D\uDC55",def:0,price:0},
   leather:{name:"Leather Armor",ic:"\uD83E\uDDBA",def:3,price:8},
-  chain:{name:"Chainmail",ic:"\u26D3\uFE0F",def:6,price:20},
-  plate:{name:"Steel Plate",ic:"\uD83D\uDEE1\uFE0F",def:10,price:50},
-  dragonscale:{name:"Dragonscale Mail",ic:"\uD83D\uDC32",def:15,price:90},
+  chain:{name:"Chainmail",ic:"\u26D3\uFE0F",def:6,res:1,price:20},
+  plate:{name:"Steel Plate",ic:"\uD83D\uDEE1\uFE0F",def:10,res:2,price:50},
+  dragonscale:{name:"Dragonscale Mail",ic:"\uD83D\uDC32",def:15,res:4,price:90},
   // Bronze
-  minershauberk:{name:"Miner's Hauberk",ic:"\u26D3\uFE0F",def:16,price:100,chapter:1},
-  stoneplate:{name:"Stoneforged Plate",ic:"\uD83E\uDEA8",def:19,price:140,chapter:1},
-  caveiron:{name:"Cave-Iron Plate",ic:"\uD83D\uDEE1\uFE0F",def:22,price:190,chapter:1},
-  bedrock:{name:"Bedrock Aegis",ic:"\uD83E\uDEA8",def:25,price:280,chapter:1,special:true},
+  minershauberk:{name:"Miner's Hauberk",ic:"\u26D3\uFE0F",def:16,res:2,price:100,chapter:1},
+  stoneplate:{name:"Stoneforged Plate",ic:"\uD83E\uDEA8",def:19,res:3,price:140,chapter:1},
+  caveiron:{name:"Cave-Iron Plate",ic:"\uD83D\uDEE1\uFE0F",def:22,res:4,price:190,chapter:1},
+  bedrock:{name:"Bedrock Aegis",ic:"\uD83E\uDEA8",def:25,res:6,price:280,chapter:1,special:true},
   // Silver
-  runedmail:{name:"Runed Mail",ic:"\uD83D\uDD2E",def:21,price:200,chapter:2},
-  wardplate:{name:"Warded Plate",ic:"\uD83D\uDD2F",def:23,price:220,chapter:2},
-  cultguard:{name:"Cultguard Plate",ic:"\uD83D\uDEE1\uFE0F",def:27,price:280,chapter:2},
-  sanctumaegis:{name:"Sanctum Aegis",ic:"\uD83D\uDD31",def:30,price:400,chapter:2,special:true},
+  runedmail:{name:"Runed Mail",ic:"\uD83D\uDD2E",def:21,res:8,price:200,chapter:2},
+  wardplate:{name:"Warded Plate",ic:"\uD83D\uDD2F",def:23,res:10,price:220,chapter:2},
+  cultguard:{name:"Cultguard Plate",ic:"\uD83D\uDEE1\uFE0F",def:27,res:7,price:280,chapter:2},
+  sanctumaegis:{name:"Sanctum Aegis",ic:"\uD83D\uDD31",def:30,res:12,price:400,chapter:2,special:true},
   // Gold
-  graveplate:{name:"Grave-Iron Plate",ic:"\u26B0\uFE0F",def:28,price:330,chapter:3},
-  boneforged:{name:"Boneforged Plate",ic:"\uD83E\uDDB4",def:32,price:400,chapter:3},
-  sepulcher:{name:"Sepulcher Mail",ic:"\u26B1\uFE0F",def:36,price:470,chapter:3},
-  deathward:{name:"Deathward Aegis",ic:"\uD83D\uDC80",def:39,price:620,chapter:3,special:true},
+  graveplate:{name:"Grave-Iron Plate",ic:"\u26B0\uFE0F",def:28,res:10,price:330,chapter:3},
+  boneforged:{name:"Boneforged Plate",ic:"\uD83E\uDDB4",def:32,res:12,price:400,chapter:3},
+  sepulcher:{name:"Sepulcher Mail",ic:"\u26B1\uFE0F",def:36,res:14,price:470,chapter:3},
+  deathward:{name:"Deathward Aegis",ic:"\uD83D\uDC80",def:39,res:18,price:620,chapter:3,special:true},
   // Diamond
-  hexweave:{name:"Hexweave Mail",ic:"\uD83E\uDDF6",def:33,price:460,chapter:4},
-  thornmail:{name:"Thornmail",ic:"\uD83C\uDF39",def:38,price:540,chapter:4},
-  covenweave:{name:"Covenweave Plate",ic:"\uD83E\uDDF5",def:43,price:620,chapter:4},
-  queenaegis:{name:"Aegis of the Queen",ic:"\uD83D\uDC51",def:47,price:800,chapter:4,special:true},
+  hexweave:{name:"Hexweave Mail",ic:"\uD83E\uDDF6",def:33,res:16,price:460,chapter:4},
+  thornmail:{name:"Thornmail",ic:"\uD83C\uDF39",def:38,res:14,price:540,chapter:4},
+  covenweave:{name:"Covenweave Plate",ic:"\uD83E\uDDF5",def:43,res:18,price:620,chapter:4},
+  queenaegis:{name:"Aegis of the Queen",ic:"\uD83D\uDC51",def:47,res:22,price:800,chapter:4,special:true},
 };
 const POTIONS={
   minor:{name:"Minor Potion",ic:"\uD83E\uDDEA",effect:"hp",power:18,price:3,desc:"Restore 18 HP."},
   potion:{name:"Healing Potion",ic:"\uD83C\uDF76",effect:"hp",power:40,price:8,desc:"Restore 40 HP."},
   mana:{name:"Mana Draught",ic:"\uD83D\uDD35",effect:"mp",power:14,price:6,desc:"Restore 14 MP."},
   antidote:{name:"Antidote",ic:"\uD83C\uDF3F",effect:"cure",power:0,price:5,desc:"Cure poison instantly."},
-  elixir:{name:"Grand Elixir",ic:"\u2697\uFE0F",effect:"full",power:0,price:18,desc:"Fully restore HP & MP."},
+  greater:{name:"Greater Potion",ic:"\uD83C\uDF77",effect:"hp",power:90,price:22,chapter:1,desc:"Restore 90 HP."},
+  superior:{name:"Superior Potion",ic:"\uD83C\uDFFA",effect:"hp",power:180,price:48,chapter:3,desc:"Restore 180 HP."},
+  elixir:{name:"Grand Elixir",ic:"\u2697\uFE0F",effect:"full",power:0,price:40,desc:"Fully restore HP & MP."},
 };
 function E(id,name,ic,hp,atk,def,xp,coins,special,ambush,dtype){return {id,name,ic,hp,atk,def,xp,coins,special:special||null,ambush:ambush||0,dtype:dtype||'physical'};}
 const ENEMIES={
@@ -430,10 +443,10 @@ const ENEMIES={
   cultist:E("cultist","Cult Acolyte","\uD83E\uDDCE",66,22,2,60,9),
   zealot:E("zealot","Robed Zealot","\uD83D\uDD6F\uFE0F",74,24,3,66,10),
   imp:E("imp","Summoned Imp","\uD83D\uDE08",58,26,1,64,8,{name:"Hellfire",every:3,power:22,inflict:{type:'burn',turns:3,power:9}},12,"magic"),
-  warlock:E("warlock","Cult Warlock","\uD83E\uDDD9\u200D\u2642\uFE0F",170,28,3,220,40,{name:"Dark Bolt",every:2,power:30},0,"magic"),
+  warlock:E("warlock","Cult Warlock","\uD83E\uDDD9\u200D\u2642\uFE0F",170,26,3,220,40,{name:"Dark Bolt",every:2,power:26},0,"magic"),
   summoner:E("summoner","Flesh Summoner","\uD83C\uDF00",190,26,4,230,42,{name:"Rend",every:3,power:32}),
   inquisitor:E("inquisitor","Cult Inquisitor","\uD83D\uDDDD\uFE0F",176,30,4,225,40,{name:"Smite",every:3,power:31}),
-  cultlord:E("cultlord","Malphas, the Sorcerer","\uD83D\uDD2E",400,32,5,2000,220,{name:"WORD OF DOOM",every:3,power:44,boss:true},0,"magic"),
+  cultlord:E("cultlord","Malphas, the Sorcerer","\uD83D\uDD2E",340,28,5,2000,220,{name:"WORD OF DOOM",every:3,power:38,boss:true},0,"magic"),
   // ---- Chapter 3: The Undead Tide (Gravemoor) ----
   ghoul:E("ghoul","Rotting Ghoul","\uD83E\uDDDF",95,28,2,90,12,{name:"Infectious Claw",every:3,power:26,inflict:{type:'poison',turns:4,power:10}}),
   revenant:E("revenant","Armored Revenant","\uD83E\uDEA6",112,30,5,96,14),
@@ -441,7 +454,7 @@ const ENEMIES={
   deathknight:E("deathknight","Death Knight","\u2694\uFE0F",230,34,6,320,55,{name:"Cleaving Doom",every:3,power:36}),
   bonecolossus:E("bonecolossus","Bone Colossus","\uD83D\uDC80",280,32,5,340,58,{name:"Bone Storm",every:3,power:34}),
   plaguelord:E("plaguelord","The Plague Lord","\u2623\uFE0F",240,34,4,330,55,{name:"Pestilence",every:2,power:30,inflict:{type:'poison',turns:5,power:12}},0,"magic"),
-  lich:E("lich","Vorthrak, the Lich King","\uD83D\uDC51",580,38,6,2800,260,{name:"SOUL HARVEST",every:3,power:48,drain:true,boss:true},0,"magic"),
+  lich:E("lich","Vorthrak, the Lich King","\uD83D\uDC51",470,32,6,2800,260,{name:"SOUL HARVEST",every:3,power:40,drain:true,boss:true},0,"magic"),
   // ---- Chapter 4: The Coven's Revenge (Hexwood) ----
   hag:E("hag","Bog Hag","\uD83E\uDDD9",130,34,3,120,16,{name:"Curse",every:3,power:30,inflict:{type:'poison',turns:4,power:11}},0,"magic"),
   familiar:E("familiar","Witch's Familiar","\uD83D\uDC08\u200D\u2B1B",110,36,2,116,14,{name:"Frenzied Claw",every:3,power:30}),
@@ -449,11 +462,17 @@ const ENEMIES={
   nightwitch:E("nightwitch","Night Witch","\uD83C\uDF11",300,40,4,440,70,{name:"Nightfall",every:3,power:42},0,"magic"),
   bloodwitch:E("bloodwitch","Blood Witch","\uD83E\uDE78",320,42,5,460,72,{name:"Hemorrhage",every:2,power:40,drain:true},0,"magic"),
   crone:E("crone","The Crone","\uD83D\uDC75",312,40,5,450,70,{name:"Wither Hex",every:3,power:40,inflict:{type:'poison',turns:5,power:13}},0,"magic"),
-  witchqueen:Object.assign(E("witchqueen","Morgath, the Witch Queen","\uD83D\uDC51",320,42,6,700,400,{name:"Hexfire",every:3,power:46,boss:true},0,"magic"),{weak:'physical',resist:'magic',weakNote:"\uD83D\uDDE1\uFE0F Her wards turn aside magic \u2014 cut her down with STEEL."}),
-  witchqueen2:Object.assign(E("witchqueen2","Morgath Unbound","\uD83C\uDF11",360,48,5,1000,0,{name:"Soulrend",every:3,power:52,drain:true,boss:true},0,"magic"),{weak:'magic',resist:'physical',weakNote:"\u2728 Steel passes through her shade \u2014 tear her apart with MAGIC SPELLS."}),
-  witchqueen3:Object.assign(E("witchqueen3","Morgath, the Devourer","\uD83D\uDC7F",430,54,6,1600,0,{name:"ANNIHILATION",every:2,power:60,boss:true},0,"magic"),{weak:'essence',resist:null,weakNote:"\u27E1 Only raw ELEMENTAL ESSENCE can unmake her now."}),
+  witchqueen:Object.assign(E("witchqueen","Morgath, the Witch Queen","\uD83D\uDC51",300,40,6,700,400,{name:"Hexfire",every:3,power:46,boss:true},0,"magic"),{weak:'physical',resist:'magic',weakNote:"\uD83D\uDDE1\uFE0F Her wards turn aside magic \u2014 cut her down with STEEL."}),
+  witchqueen2:Object.assign(E("witchqueen2","Morgath Unbound","\uD83C\uDF11",340,46,5,1000,0,{name:"Soulrend",every:3,power:52,drain:true,boss:true},0,"magic"),{weak:'magic',resist:'physical',weakNote:"\u2728 Steel passes through her shade \u2014 tear her apart with MAGIC SPELLS."}),
+  witchqueen3:Object.assign(E("witchqueen3","Morgath, the Devourer","\uD83D\uDC7F",400,50,6,1600,0,{name:"ANNIHILATION",every:2,power:60,boss:true},0,"magic"),{weak:'essence',resist:null,weakNote:"\u27E1 Only raw ELEMENTAL ESSENCE can unmake her now."}),
 };
 const FINALE_FORMS={witchqueen:["witchqueen","witchqueen2","witchqueen3"]};
+// chapter-themed weaknesses: steel for cultists, essence unmakes the dead, spellfire for beasts, steel for coven flesh
+[["kobold","magic"],["crawler","magic"],["gloomhound","magic"],["broodmother","magic"],["stonesentinel","magic"],["tunnelmaw","magic"],["worm","magic"],
+ ["cultist","physical"],["zealot","physical"],["imp","physical"],["warlock","physical"],["summoner","physical"],["inquisitor","physical"],["cultlord","physical"],
+ ["ghoul","essence"],["revenant","essence"],["shade","essence"],["deathknight","essence"],["bonecolossus","essence"],["plaguelord","essence"],["lich","essence"],
+ ["hag","physical"],["familiar","physical"],["cursed","physical"],["nightwitch","essence"],["bloodwitch","essence"],["crone","essence"]
+].forEach(([id,w])=>{if(ENEMIES[id])ENEMIES[id].weak=w;});
 /* Which slain creatures yield edible meat. Beasts only \u2014 no undead/fae/humanoids/constructs. */
 const FOOD={
   rat:{meat:"rat haunch",heal:8,infect:28},
@@ -549,15 +568,61 @@ function makeHero(){const c=CLASSES[G.cls];
   const abilities=Object.keys(ABILITIES).filter(k=>ABILITIES[k].cls===G.cls&&ABILITIES[k].lvl<=1);
   return {gender:G.gender,cls:G.cls,level:1,xp:0,maxHp:c.hp,hp:c.hp,maxMp:c.mp,mp:c.mp,
     atkBase:c.atk,defBase:c.def,weapon:c.weapon,armor:"none",coins:0,
-    ownedWeapons:[c.weapon],ownedArmor:["none"],relics:[],essences:[],attuned:[],essLvl:{},essUse:{},weaponPlus:{},armorPlus:{},carriedPoison:null,
+    ownedWeapons:[c.weapon],ownedArmor:["none"],relics:[],essences:[],attuned:[],essLvl:{},essUse:{},weaponPlus:{},armorPlus:{},weaponAsc:{},armorAsc:{},quints:{},familiars:[],activeFams:[],carriedPoison:null,
     inv:{minor:1,potion:0,mana:0,antidote:1,elixir:0},abilities};}
-function atkTotal(){return G.p.atkBase+WEAPONS[G.p.weapon].atk+weaponPlus()*2+(G.combat?G.combat.pAtkBuff:0);}
+function atkTotal(){return G.p.atkBase+WEAPONS[G.p.weapon].atk+weaponPlus()*2+weaponAsc()*8+(G.combat?G.combat.pAtkBuff:0);}
 function weaponPlus(){return (G.p&&G.p.weaponPlus&&G.p.weaponPlus[G.p.weapon])||0;}
 function enhanceCost(){const id=G.p.weapon,lvl=weaponPlus();return Math.round((WEAPONS[id].atk+3)*4+lvl*22);}
-function defTotal(){return G.p.defBase+ARMORS[G.p.armor].def+armorPlus()+essSum('def');}        // physical mitigation (armor + reinforcement + stoneskin)
+function defTotal(){return G.p.defBase+ARMORS[G.p.armor].def+armorPlus()+armorAsc()*6+essSum('def')+(famHas('ward')?2:0);}        // physical mitigation (armor + reinforcement + stoneskin)
 function armorPlus(){return (G.p&&G.p.armorPlus&&G.p.armorPlus[G.p.armor])||0;}
 function reinforceCost(){const id=G.p.armor,lvl=armorPlus();return Math.round((ARMORS[id].def+3)*5+lvl*26);}
-function magicResist(){return (G.combat?G.combat.resist:0)+essSum('magicResist');}   // wards + fire essence
+function magicResist(){return (G.combat?G.combat.resist:0)+essSum('magicResist')+armorRes();}   // wards + fire essence + armor warding
+function armorRes(){const a=ARMORS[G.p.armor];return ((a&&a.res)||0)+armorAsc()*2+(famHas('ward')?2:0);}
+/* ===== QUINTESSENCE & GEAR ASCENSION ===== */
+const QUINTS={
+  bronze:{name:"Bronze Quintessence",ic:"\uD83D\uDFE4",rank:1,price:140,desc:"Condensed essence of the deep earth. Fuels forging gear to Bronze."},
+  silver:{name:"Silver Quintessence",ic:"\u26AA",rank:2,price:280,desc:"Moonlit and warded. Fuels forging gear to Silver."},
+  gold:{name:"Gold Quintessence",ic:"\uD83D\uDFE1",rank:3,price:480,desc:"Grave-fire made solid. Fuels forging gear to Gold."},
+  diamond:{name:"Diamond Quintessence",ic:"\uD83D\uDC8E",rank:4,price:750,desc:"A shard of pure witching power. Fuels forging gear to Diamond."},
+};
+const QUINT_BY_RANK=[null,"bronze","silver","gold","diamond"];
+/* ===== FAMILIARS ===== */
+const FAMILIARS={
+  emberwyrm:{name:"Emberwyrm",ic:"\uD83D\uDC32",rank:0,price:120,kind:"shift",power:6,desc:"A shape-shifting dragonling \u2014 breathes a different element every round: steel, spellfire, or raw essence."},
+  bloodleech:{name:"Blood Leech",ic:"\uD83E\uDE78",rank:0,price:120,kind:"drain",power:5,desc:"A fat crimson leech that latches onto foes \u2014 half of what it drinks flows back to you."},
+  runeturtle:{name:"Rune Turtle",ic:"\uD83D\uDC22",rank:0,price:120,kind:"ward",power:2,desc:"Hovers beside you, runes glowing \u2014 +2 DEF and +2 ward while bound. It never attacks; it endures."},
+  golemling:{name:"Stone Golemling",ic:"\uD83D\uDDFF",rank:1,price:260,kind:"phys",power:9,desc:"A knee-high slab of living rock. Punches like a falling wall."},
+  wisp:{name:"Will-o-Wisp",ic:"\uD83D\uDCAB",rank:1,price:260,kind:"magic",power:9,desc:"A flickering spirit-light that zaps foes with arcane sparks \u2014 armor means nothing to it."},
+  gloombat:{name:"Gloom Bat",ic:"\uD83E\uDD87",rank:1,price:260,kind:"evade",power:6,desc:"Wheels around your head shrieking \u2014 foes misjudge their strikes. +6 dodge while bound."},
+  stormraven:{name:"Storm Raven",ic:"\u26C8\uFE0F",rank:2,price:420,kind:"aoe",power:13,desc:"Thunder rides its wings \u2014 lashes EVERY foe with chain lightning each round."},
+  faesprite:{name:"Fae Sprite",ic:"\uD83E\uDDDA",rank:2,price:420,kind:"heal",power:10,desc:"A moth-winged healer that mends your wounds whenever you falter."},
+  gravehound:{name:"Grave Hound",ic:"\uD83E\uDDB4",rank:2,price:420,kind:"phys",power:14,desc:"A skeletal hound with iron jaws. Loyal beyond death \u2014 literally."},
+  infernalimp:{name:"Infernal Imp",ic:"\uD83D\uDE08",rank:3,price:650,kind:"burn",power:12,desc:"A cackling flame-devil \u2014 scorches foes and often sets them ablaze."},
+  frostserpent:{name:"Frost Serpent",ic:"\uD83D\uDC0D",rank:3,price:650,kind:"magic",power:18,desc:"A ribbon of living ice. Its bite bypasses armor and numbs to the bone."},
+  phoenix:{name:"Ash Phoenix",ic:"\uD83D\uDC26\u200D\uD83D\uDD25",rank:4,price:1000,kind:"revive",power:15,desc:"Strikes with essence-fire \u2014 and once per battle, when you fall, it burns itself to raise you from the ashes."},
+};
+function famCap(){const magical=(G.cls==='mage'||G.cls==='cleric');return [1,magical?3:2,magical?4:3,5,5][rankIndex()]||1;}
+function famHas(kind){return (G.p&&G.p.activeFams||[]).some(id=>FAMILIARS[id]&&FAMILIARS[id].kind===kind);}
+function famAct(){const c=G.combat,p=G.p;if(!c||c.over)return;
+  (p.activeFams||[]).forEach(id=>{const f=FAMILIARS[id];if(!f||c.over)return;
+    const tgt=c.enemies.find(e=>!e.dead);const bond=Math.max(0.55,1-0.1*(((p.activeFams||[]).length)-1));const pw=Math.max(1,Math.round((f.power+Math.floor(p.level*0.8))*bond));const lbl=f.ic+' '+f.name;
+    if(f.kind==='phys'&&tgt)applyToEnemy(tgt,Math.max(1,pw+rng(4)-tgt.def),false,lbl,'physical');
+    else if(f.kind==='magic'&&tgt)applyToEnemy(tgt,Math.max(1,pw+rng(4)),false,lbl,'magic');
+    else if(f.kind==='shift'&&tgt){const cat=['physical','magic','essence'][rng(3)];clog(`${f.ic} the Emberwyrm shifts form \u2014 ${cat==='physical'?'steel talons':cat==='magic'?'spellfire breath':'essence flame'}!`,'sys');applyToEnemy(tgt,Math.max(1,pw+rng(6)),false,f.name,cat);}
+    else if(f.kind==='drain'&&tgt){const d=Math.max(1,pw+rng(3));applyToEnemy(tgt,d,false,lbl,'physical');const h=Math.ceil(d/2);if(p.hp<p.maxHp){p.hp=Math.min(p.maxHp,p.hp+h);clog(`${f.ic} feeds ${h} HP back to you.`,'you');}}
+    else if(f.kind==='aoe'){c.enemies.filter(e=>!e.dead).forEach(e=>applyToEnemy(e,Math.max(1,Math.round(pw*0.6)+rng(3)),false,lbl,'magic'));}
+    else if(f.kind==='heal'){if(p.hp<p.maxHp*0.7){const h=pw+rng(4);p.hp=Math.min(p.maxHp,p.hp+h);Sound.play('heal');clog(`${f.ic} ${f.name} mends you for ${h}.`,'you');}}
+    else if(f.kind==='burn'&&tgt){applyToEnemy(tgt,Math.max(1,pw+rng(3)),false,lbl,'magic');if(!tgt.dead&&rng(100)<50){tgt.statuses=tgt.statuses||[];tgt.statuses.push({type:'burn',turns:3,power:6});clog(`${tgt.name} is set ablaze!`,'sys');}}
+    else if(f.kind==='revive'&&tgt){applyToEnemy(tgt,Math.max(1,pw+rng(4)),false,lbl,'essence');}
+  });}
+
+function quintCount(id){return (G.p&&G.p.quints&&G.p.quints[id])||0;}
+function weaponAsc(id){return (G.p&&G.p.weaponAsc&&G.p.weaponAsc[id||G.p.weapon])||0;}
+function armorAsc(id){return (G.p&&G.p.armorAsc&&G.p.armorAsc[id||G.p.armor])||0;}
+function gearEffRank(kind,id){const it=(kind==='weapon'?WEAPONS:ARMORS)[id];return (it.chapter||0)+(kind==='weapon'?weaponAsc(id):armorAsc(id));}
+function canAscend(kind,id){const it=(kind==='weapon'?WEAPONS:ARMORS)[id];if(!it||!it.price||id==='none')return false;return gearEffRank(kind,id)<rankIndex();}
+function ascendCost(kind,id){const target=gearEffRank(kind,id)+1;return {coins:150*target,quint:QUINT_BY_RANK[target],target};}
+
 const DIFFICULTIES={
   easy:  {name:"Easy",  ic:"\uD83D\uDEE1\uFE0F",ehp:0.75,eatk:0.7, xp:1.15,desc:"Foes are frailer and hit softer. A gentler crawl."},
   normal:{name:"Normal",ic:"\u2694\uFE0F",ehp:1.0, eatk:1.0, xp:1.0, desc:"The intended challenge \u2014 balanced."},
@@ -588,14 +653,14 @@ function essList(){return (G.p&&G.p.attuned)||[];}                 // ACTIVE ess
 function essSum(key){return essList().reduce((t,id)=>t+(ESSENCES[id].passive[key]||0),0);}
 function essAny(key){return essList().some(id=>ESSENCES[id].passive[key]);}
 function focusMax(){return essList().length?3:0;}
-function dodgeChance(){let d=(hasRelic('boots')?25:0)+essSum('dodge');if(G.combat&&G.combat.pEvade)d+=G.combat.pEvade;return Math.min(d,90);}
+function dodgeChance(){let d=(hasRelic('boots')?25:0)+essSum('dodge')+(famHas('evade')?6:0);if(G.combat&&G.combat.pEvade)d+=G.combat.pEvade;return Math.min(d,90);}
 function autoAttune(){const cap=essCap();owned().forEach(id=>{if(G.p.attuned.length<cap&&!G.p.attuned.includes(id))G.p.attuned.push(id);});}
 const ESS_THRESH=[0,6,18];                                   // uses needed for Lv1->2 (6), Lv2->3 (18)
 function essLevel(id){const u=(G.p&&G.p.essUse&&G.p.essUse[id])||0;let lv=1;if(u>=ESS_THRESH[2])lv=3;else if(u>=ESS_THRESH[1])lv=2;return lv;}
 function essMult(id){return 1+0.3*(essLevel(id)-1);}         // Lv2 = 1.3x, Lv3 = 1.6x
 function essRoman(id){return ["","I","II","III"][essLevel(id)];}
 function bumpEssUse(id){if(!G.p.essUse)G.p.essUse={};const before=essLevel(id);G.p.essUse[id]=(G.p.essUse[id]||0)+1;const after=essLevel(id);if(after>before)clog(`\u27E1 ${ESSENCES[id].name} grew stronger \u2014 now ${ESSENCES[id].power.name} ${essRoman(id)}!`,'crit');}
-function cheatEssLevels(){const p=G.p;if(!p||!p.essences)return;const lv=[1,2,2,3,3][rankIndex()]||1;const u=ESS_THRESH[lv-1]||0;p.essUse=p.essUse||{};p.essences.forEach(id=>{p.essUse[id]=Math.max(p.essUse[id]||0,u);});}
+function syncEssLevels(){const p=G.p;if(!p||!p.essences)return;const lv=[1,2,2,3,3][rankIndex()]||1;const u=ESS_THRESH[lv-1]||0;p.essUse=p.essUse||{};p.essences.forEach(id=>{p.essUse[id]=Math.max(p.essUse[id]||0,u);});}
 function essUnlocked(id){return rankIndex()>=(ESSENCES[id].tier||0);}
 function hasRelic(id){return !!(G.p&&G.p.relics&&G.p.relics.includes(id));}
 function costOf(a){return hasRelic('wand')?Math.max(1,a.cost-2):a.cost;}
@@ -609,11 +674,11 @@ function rng(n){return Math.floor(Math.random()*n);}
 const screenEl=document.getElementById('screen');
 const topbarEl=document.getElementById('topbar');
 function render(){
-  if(["title","create","victory","gameover","changelog","chapterclear","credits","cheat"].includes(G.screen)){topbarEl.classList.add('hidden');}
+  if(["title","create","victory","gameover","changelog","chapterclear","credits","cheat","codex","exportsave","importsave"].includes(G.screen)){topbarEl.classList.add('hidden');}
   else{topbarEl.classList.remove('hidden');renderTopbar();}
   const map={title:scrTitle,create:scrCreate,town:scrTown,board:scrBoard,smith:scrSmith,apoth:scrApoth,
     inn:scrInn,status:scrStatus,dungeon:scrDungeon,combat:scrCombat,result:scrResult,levelup:scrLevelup,loot:scrLoot,
-    death:scrDeath,victory:scrVictory,gameover:scrGameover,changelog:scrChangelog,chapterclear:scrChapterClear,credits:scrCredits,cheat:scrCheat};
+    death:scrDeath,victory:scrVictory,gameover:scrGameover,changelog:scrChangelog,chapterclear:scrChapterClear,credits:scrCredits,cheat:scrCheat,menagerie:scrMenagerie,codex:scrCodex,exportsave:scrExport,importsave:scrImport};
   const appEl=document.getElementById('app');const lockCombat=(G.screen==="combat"&&!(G.combat&&G.combat.menu));if(appEl&&appEl.classList&&appEl.classList.toggle){appEl.classList.toggle('in-combat',lockCombat);appEl.classList.toggle('menu-open',G.screen==="combat"&&!!(G.combat&&G.combat.menu));}
   screenEl.innerHTML=(map[G.screen]||(()=>"<p>...</p>"))();
   screenEl.classList.remove('fade');void screenEl.offsetWidth;screenEl.classList.add('fade');
@@ -640,7 +705,9 @@ function scrTitle(){
   <div style="width:100%;max-width:340px;display:flex;flex-direction:column;gap:10px">
     ${cont?`<button class="btn gold" data-act="continue-save">Continue \u25B8</button>
     <button class="btn" data-act="newgame-fresh">New Game</button>`:`<button class="btn gold" data-act="goto" data-arg="create">Forge a Hero \u25B8</button>`}
+    <button class="btn ghost" data-act="goto" data-arg="codex">\uD83D\uDCD6 How to Play</button>
     <button class="btn ghost" data-act="goto" data-arg="changelog">\uD83D\uDCDC Version History</button>
+    <div style="display:flex;gap:8px"><button class="btn ghost" data-act="goto" data-arg="exportsave" style="flex:1">\uD83D\uDCBE Export</button><button class="btn ghost" data-act="goto" data-arg="importsave" style="flex:1">\uD83D\uDCE5 Import</button></div>
   </div>
   <div style="margin-top:14px;font-family:var(--mono);font-size:11px;color:var(--ink-dim);letter-spacing:.1em">v${VERSION}</div></div>`;}
 function scrChangelog(){
@@ -679,6 +746,7 @@ function scrTown(){
     {arg:"smith",ic:"\u2692\uFE0F",b:"Blacksmith",s:"Weapons and armor for the brave."},
     {arg:"apoth",ic:"\uD83E\uDDEA",b:"Apothecary",s:"Potions and draughts for the road."},
     {arg:"inn",ic:"\uD83C\uDF7A",b:"The Hearth Inn",s:"Rest a night. Mend body and spirit."},
+    {arg:"menagerie",ic:"\uD83E\uDD89",b:"The Menagerie",s:"Bind familiars to fight at your side."},
     {arg:"status",ic:"\uD83D\uDCD6",b:"Your Hero",s:"Stats, gear, and known abilities."},
   ];
   const rk=RANKS[rankIndex()];
@@ -730,7 +798,7 @@ function shopRows(items,kind){const p=G.p;
     if(it.price===0&&kind!=='potion')return "";
     if((it.chapter||0)>(G.chapter||0))return "";   // not yet unlocked this chapter
     if(it.special)return "";                        // special gear is loot-only, never sold
-    let stat="";if(kind==='weapon')stat=`+${it.atk} ATK`;if(kind==='armor')stat=`+${it.def} DEF`;if(kind==='potion')stat=it.desc+(p.inv[id]?` &nbsp;\u00B7&nbsp; held: ${p.inv[id]}`:"");
+    let stat="";if(kind==='weapon')stat=`+${it.atk} ATK`;if(kind==='armor')stat=`+${it.def} DEF${it.res?` \u00B7 \uD83D\uDD2F ${it.res} ward`:''}`;if(kind==='potion')stat=it.desc+(p.inv[id]?` &nbsp;\u00B7&nbsp; held: ${p.inv[id]}`:"");
     const owned=(kind==='weapon'&&p.weapon===id)||(kind==='armor'&&p.armor===id);
     const afford=p.coins>=it.price;
     let btn=owned?`<button class="buy" disabled>Equipped</button>`:`<button class="buy" data-act="buy" data-arg="${kind}:${id}" ${afford?'':'disabled'}>${kind==='potion'?'Buy':'Equip'}</button>`;
@@ -746,14 +814,26 @@ function scrSmith(){const p=G.p,wid=p.weapon,w=WEAPONS[wid],lvl=weaponPlus(),max
     : alvl>=max
     ? `<div class="row" style="border-color:var(--gold)"><span class="ic">${ar.ic}</span><div class="info"><b style="color:var(--gold)">${ar.name} +${alvl}</b><span>Fully reinforced \u2014 ${ar.def+alvl} DEF. Can't be plated higher.</span></div><span class="price" style="color:var(--xp)">MAX</span></div>`
     : `<div class="row"><span class="ic">${ar.ic}</span><div class="info"><b>${ar.name}${alvl?` +${alvl}`:''}</b><span>Now ${ar.def+alvl} DEF \u2192 <span style="color:var(--xp)">${ar.def+alvl+1} DEF</span> after reinforcing (+1).</span></div><button class="buy" data-act="reinforce" ${p.coins>=reinforceCost()?'':'disabled'} style="border-color:var(--gold);color:var(--gold)">\uD83D\uDEE1\uFE0F ${reinforceCost()}\uD83E\uDE99</button></div>`;
+  const ascRow=(kind,id)=>{const it=(kind==='weapon'?WEAPONS:ARMORS)[id];if(!it||!it.price||id==='none')return `<div class="row" style="opacity:.6"><span class="ic">\u2699\uFE0F</span><div class="info"><b>Nothing to ascend</b><span>Equip forged gear (not starter kit) and I can raise it with quintessence.</span></div></div>`;
+    const eff=gearEffRank(kind,id),effName=RANKS[eff].name;
+    if(!canAscend(kind,id)){const why=eff>=rankIndex()?`Already ${effName} \u2014 matches your rank. Advance to forge it higher.`:``;
+      return `<div class="row" style="border-color:${RANKS[eff].color}"><span class="ic">${it.ic}</span><div class="info"><b>${it.name}${eff>(it.chapter||0)?` \u2726${effName}`:''}</b><span>${why}</span></div><span class="price" style="color:var(--xp)">${RANKS[eff].ic} ${effName}</span></div>`;}
+    const c=ascendCost(kind,id),q=QUINTS[c.quint],have=quintCount(c.quint),afford=p.coins>=c.coins&&have>=1;
+    const gain=kind==='weapon'?'+8 ATK':'+6 DEF, +2 ward';
+    return `<div class="row"><span class="ic">${it.ic}</span><div class="info"><b>${it.name}${eff>(it.chapter||0)?` \u2726${effName}`:''}</b><span>Forge to <span style="color:${RANKS[c.target].color}">${RANKS[c.target].name}</span> (${gain}) \u00B7 needs ${q.ic} 1 ${q.name} (have ${have})</span></div><button class="buy" data-act="ascend" data-arg="${kind}:${id}" ${afford?'':'disabled'} style="border-color:${RANKS[c.target].color};color:${RANKS[c.target].color}">${c.coins}\uD83E\uDE99 + ${q.ic}</button></div>`;};
+  const ascendSec=ascRow('weapon',p.weapon)+ascRow('armor',p.armor);
+  const pouch=Object.keys(QUINTS).map(k=>`${QUINTS[k].ic}${quintCount(k)}`).join(' \u00B7 ');
   return `<div><h2 class="head">\u2692\uFE0F The Blacksmith</h2><p class="sub">"Steel keeps you breathing out there. Pick something with weight \u2014 or bring me what you've got and I'll temper it sharper."</p>
   <div style="font-family:var(--mono);font-size:11px;letter-spacing:.16em;color:var(--gold);text-transform:uppercase;margin:4px 0 10px;">Forge \u00B7 Temper Your Weapon</div>${forge}
   <div style="font-family:var(--mono);font-size:11px;letter-spacing:.16em;color:var(--gold);text-transform:uppercase;margin:16px 0 10px;">Forge \u00B7 Reinforce Your Armor</div>${reinforce}
+  <div style="font-family:var(--mono);font-size:11px;letter-spacing:.16em;color:var(--gold);text-transform:uppercase;margin:16px 0 10px;">Forge \u00B7 Ascend Gear by Rank &nbsp;<span style="opacity:.7;text-transform:none">pouch: ${pouch}</span></div>${ascendSec}
   <div style="font-family:var(--mono);font-size:11px;letter-spacing:.16em;color:var(--gold);text-transform:uppercase;margin:16px 0 10px;">Weapons</div>${shopRows(WEAPONS,'weapon')}
   <div style="font-family:var(--mono);font-size:11px;letter-spacing:.16em;color:var(--gold);text-transform:uppercase;margin:16px 0 10px;">Armor</div>${shopRows(ARMORS,'armor')}
   <div style="font-family:var(--mono);font-size:11px;letter-spacing:.16em;color:var(--xp);text-transform:uppercase;margin:18px 0 10px;">\uD83D\uDCB0 Sell \u00B7 half value, can't sell what you're wearing</div>${sellRows(WEAPONS,'weapon')}${sellRows(ARMORS,'armor')}
   <button class="btn ghost" data-act="goto" data-arg="town" style="margin-top:8px">\u25C2 Back to town</button></div>`;}
 function scrApoth(){const p=G.p,ri=rankIndex();
+  const quintRows=Object.keys(QUINTS).map(id=>{const q=QUINTS[id],locked=ri<q.rank,afford=p.coins>=q.price;
+    return `<div class="row" style="${locked?'opacity:.65':''}"><span class="ic">${q.ic}</span><div class="info"><b>${q.name}</b><span>${q.desc} \u00B7 held: ${quintCount(id)}</span></div>${locked?`<button class="buy" disabled>${RANKS[q.rank].ic} ${RANKS[q.rank].name}+</button>`:`<button class="buy" data-act="buy-quint" data-arg="${id}" ${afford?'':'disabled'}>${q.price}\uD83E\uDE99</button>`}</div>`;}).join("");
   const essRows=Object.keys(ESSENCES).map(id=>{const e=ESSENCES[id],a=e.power,ownedIt=p.essences.includes(id),locked=ri<(e.tier||0),afford=p.coins>=e.price;
     const rname=RANKS[e.tier||0].name;
     let btn;
@@ -765,6 +845,7 @@ function scrApoth(){const p=G.p,ri=rankIndex();
   <div style="font-family:var(--mono);font-size:11px;letter-spacing:.16em;color:var(--gold);text-transform:uppercase;margin:4px 0 10px;">Potions</div>
   ${shopRows(POTIONS,'potion')}
   <div style="font-family:var(--mono);font-size:11px;letter-spacing:.16em;color:var(--xp);text-transform:uppercase;margin:16px 0 10px;">\uD83D\uDCB0 Sell Potions \u00B7 half value</div>${sellRows(POTIONS,'potion')}
+  <div style="font-family:var(--mono);font-size:11px;letter-spacing:.16em;color:var(--gold);text-transform:uppercase;margin:16px 0 10px;">\u2726 Quintessences \u00B7 forging fuel</div>${quintRows}
   <div style="font-family:var(--mono);font-size:11px;letter-spacing:.16em;color:#c9a6ff;text-transform:uppercase;margin:16px 0 10px;">\u27E1 Raw Essences <span style="color:var(--ink-dim);letter-spacing:0;text-transform:none">\u00B7 stronger ones need higher rank</span></div>
   ${essRows}
   <button class="btn ghost" data-act="goto" data-arg="town" style="margin-top:8px">\u25C2 Back to town</button></div>`;}
@@ -797,7 +878,7 @@ function scrStatus(){const p=G.p;
       <span>\u2694\uFE0F ATK <b style="color:var(--parch)">${atkTotal()}</b></span><span>\uD83D\uDEE1\uFE0F DEF <b style="color:var(--parch)">${defTotal()}</b></span></div></div>
     <div style="font-family:var(--mono);font-size:11px;letter-spacing:.16em;color:var(--gold);text-transform:uppercase;margin:8px 0 10px;">Arsenal</div>
     ${p.ownedWeapons.map(id=>{const w=WEAPONS[id],eq=p.weapon===id,plus=(p.weaponPlus&&p.weaponPlus[id])||0,req=gearReqRank(w),lk=req>rankIndex();return `<div class="row" style="${lk?'opacity:.7':''}"><span class="ic">${w.ic}</span><div class="info"><b>${w.name}${plus?` +${plus}`:''}</b><span>Weapon \u00B7 +${w.atk+plus*2} ATK${plus?' (tempered)':''}${lk?` \u00B7 <span style="color:${RANKS[req].color}">needs ${RANKS[req].name}</span>`:''}</span></div>${eq?'<span class="price" style="color:var(--xp)">\u2605 Equipped</span>':(lk?`<button class="buy" disabled>\uD83D\uDD12 ${RANKS[req].name}</button>`:`<button class="buy" data-act="equip" data-arg="weapon:${id}">Equip</button>`)}</div>`;}).join("")}
-    ${p.ownedArmor.map(id=>{const w=ARMORS[id],eq=p.armor===id,plus=(p.armorPlus&&p.armorPlus[id])||0,req=gearReqRank(w),lk=req>rankIndex();return `<div class="row" style="${lk?'opacity:.7':''}"><span class="ic">${w.ic}</span><div class="info"><b>${w.name}${plus?` +${plus}`:''}</b><span>Armor \u00B7 +${w.def+plus} DEF${plus?' (reinforced)':''}${lk?` \u00B7 <span style="color:${RANKS[req].color}">needs ${RANKS[req].name}</span>`:''}</span></div>${eq?'<span class="price" style="color:var(--xp)">\u2605 Equipped</span>':(lk?`<button class="buy" disabled>\uD83D\uDD12 ${RANKS[req].name}</button>`:`<button class="buy" data-act="equip" data-arg="armor:${id}">Equip</button>`)}</div>`;}).join("")}
+    ${p.ownedArmor.map(id=>{const w=ARMORS[id],eq=p.armor===id,plus=(p.armorPlus&&p.armorPlus[id])||0,req=gearReqRank(w),lk=req>rankIndex();return `<div class="row" style="${lk?'opacity:.7':''}"><span class="ic">${w.ic}</span><div class="info"><b>${w.name}${plus?` +${plus}`:''}</b><span>Armor \u00B7 +${w.def+plus} DEF${w.res||(p.armorAsc&&p.armorAsc[id])?` \u00B7 \uD83D\uDD2F ${(w.res||0)+((p.armorAsc&&p.armorAsc[id])||0)*2} ward`:''}${plus?' (reinforced)':''}${lk?` \u00B7 <span style="color:${RANKS[req].color}">needs ${RANKS[req].name}</span>`:''}</span></div>${eq?'<span class="price" style="color:var(--xp)">\u2605 Equipped</span>':(lk?`<button class="buy" disabled>\uD83D\uDD12 ${RANKS[req].name}</button>`:`<button class="buy" data-act="equip" data-arg="armor:${id}">Equip</button>`)}</div>`;}).join("")}
     <p class="sub" style="margin:14px 0 8px"><b style="color:var(--parch);font-style:normal">Pack:</b> ${inv}</p>
     ${relics}${essences}
     <div style="font-family:var(--mono);font-size:11px;letter-spacing:.16em;color:var(--gold);text-transform:uppercase;margin:14px 0 10px;">Abilities</div>${ab}
@@ -919,7 +1000,7 @@ function scrCombat(){const c=G.combat,p=G.p;let panel;
     <div class="log" id="combatLog">${logHtml}</div>
     <div class="pstat"><div class="mb"><div class="lab"><span>\u2764\uFE0F HP${pst?' '+pst:''}${shieldTxt}</span><b>${Math.max(0,p.hp)}/${p.maxHp}</b></div><div class="track hp"><i style="width:${Math.max(0,p.hp/p.maxHp*100)}%"></i></div></div>
       <div class="mb"><div class="lab"><span>\uD83D\uDD37 MP</span><b>${p.mp}/${p.maxMp}</b></div><div class="track mp"><i style="width:${p.maxMp?p.mp/p.maxMp*100:0}%"></i></div></div>
-      ${c.focusMax?`<div class="mb"><div class="lab"><span>\u27E1 Focus${c.pEvade?' \uD83C\uDF00':''}</span><b>${c.focus}/${c.focusMax}</b></div><div class="track" style="background:#241a36"><i style="width:${c.focus/c.focusMax*100}%;background:linear-gradient(90deg,#7d4fd0,#d9b8ff)"></i></div></div>`:''}</div>
+      ${c.focusMax?`<div class="mb"><div class="lab"><span>\u27E1 Focus${c.pEvade?' \uD83C\uDF00':''}</span><b>${c.focus}/${c.focusMax}</b></div><div class="track" style="background:#241a36"><i style="width:${c.focus/c.focusMax*100}%;background:linear-gradient(90deg,#7d4fd0,#d9b8ff)"></i></div></div>`:''}${(p.activeFams&&p.activeFams.length)?`<div style="font-size:14px;margin-top:3px;opacity:.9" title="Bound familiars">${p.activeFams.map(i=>FAMILIARS[i].ic).join(' ')}</div>`:''}</div>
     ${panel}</div>`;}
 
 function scrResult(){const r=G.pendingReward;const sp=G.runSpoils;
@@ -961,7 +1042,7 @@ function scrLoot(){const it=G.loot;
   const cmp=diff>0?`<span style="color:var(--xp)">+${diff} ${lab} over your ${cur.name}</span>`:(diff<0?`<span style="color:var(--blood2)">${diff} ${lab} vs your ${cur.name} \u2014 a downgrade</span>`:`<span style="color:var(--ink-dim)">Same as your ${cur.name}</span>`);
   return `<div class="center"><div class="lvlbanner" style="font-size:18px;color:var(--gold)">\u2728 TREASURE FOUND \u2728</div>
     <div class="big-emoji">${data.ic}</div><h2 class="head">${data.name}</h2>
-    <p class="sub" style="margin-bottom:6px">${isW?`Weapon \u00B7 +${data.atk} ATK`:`Armor \u00B7 +${data.def} DEF`}${data.special?` \u00B7 <span style="color:var(--gold)">\u2726 rare find</span>`:''}</p>
+    <p class="sub" style="margin-bottom:6px">${isW?`Weapon \u00B7 +${data.atk} ATK`:`Armor \u00B7 +${data.def} DEF${data.res?` \u00B7 \uD83D\uDD2F ${data.res} ward`:''}`}${data.special?` \u00B7 <span style="color:var(--gold)">\u2726 rare find</span>`:''}</p>
     <div class="gain">${locked?`<span style="color:${RANKS[req].color}">\uD83D\uDD12 Needs ${RANKS[req].ic} ${RANKS[req].name} rank to equip</span>`:cmp}</div>
     <div class="btn-row" style="margin-top:18px;max-width:320px;margin-left:auto;margin-right:auto">
       ${locked?`<button class="btn gold" data-act="loot-stash">Keep it for later \u25B8</button>`:`<button class="btn gold" data-act="loot-equip">${diff>0?'Equip it now \u25B8':'Equip it'}</button>
@@ -1003,6 +1084,36 @@ function scrCheat(){const p=G.p;
       <button class="btn danger" data-act="cheat-finalboss">\u2620\uFE0F Test Final Boss (3 forms)</button></div>
     <div style="font-family:var(--mono);font-size:11px;color:var(--ink-dim);margin-top:12px">Hero: Lv ${p.level} \u00B7 ${RANKS[rankIndex()].name} \u00B7 Ch ${(G.chapter||0)+1} \u00B7 \uD83E\uDE99 ${p.coins}</div>
     <button class="btn ghost" data-act="goto" data-arg="town" style="margin-top:10px">\u25C2 Close</button></div>`;}
+function exportCode(){const c=snapshot();if(!c)return null;try{return btoa(unescape(encodeURIComponent(JSON.stringify(c))));}catch(e){return null;}}
+function importCode(str){try{const c=JSON.parse(decodeURIComponent(escape(atob((str||"").trim()))));if(!c||!c.p)return false;applySave(c);queueSave();return true;}catch(e){return false;}}
+function scrExport(){const code=exportCode()||"No hero yet \u2014 start a game first.";
+  return `<div><h2 class="head">\uD83D\uDCBE Export Save</h2><p class="sub">Copy this code somewhere safe (notes, email). Paste it into Import on any device to continue your legend there.</p>
+  <textarea readonly onclick="this.select()" style="width:100%;height:150px;background:var(--panel);color:var(--parch);border:1px solid var(--gold);border-radius:10px;padding:10px;font-family:var(--mono);font-size:10px">${code}</textarea>
+  <button class="btn ghost" data-act="goto" data-arg="title" style="margin-top:10px">\u25C2 Back</button></div>`;}
+function scrImport(){return `<div><h2 class="head">\uD83D\uDCE5 Import Save</h2><p class="sub">Paste a save code below. This will replace any current hero on this device.</p>
+  <textarea id="importbox" style="width:100%;height:150px;background:var(--panel);color:var(--parch);border:1px solid var(--line);border-radius:10px;padding:10px;font-family:var(--mono);font-size:10px" placeholder="Paste save code here..."></textarea>
+  <div class="btn-row" style="margin-top:10px"><button class="btn gold" data-act="do-import">Import \u25B8</button><button class="btn ghost" data-act="goto" data-arg="title">\u25C2 Back</button></div></div>`;}
+function scrCodex(){const S=(t,b)=>`<div style="margin-bottom:14px"><div style="font-family:var(--mono);font-size:11px;letter-spacing:.16em;color:var(--gold);text-transform:uppercase;margin-bottom:4px">${t}</div><p class="sub" style="margin:0">${b}</p></div>`;
+  return `<div><h2 class="head">\uD83D\uDCD6 How to Play</h2>
+  ${S("The Loop","Take contracts from the Mission Board, explore the dungeon maze room by room (fog hides it until you walk it), defeat the exit's guardian, and spend your spoils in town. Clear a chapter's story to summon its boss.")}
+  ${S("Ranks","Beat a chapter's boss to travel onward and rise a rank: Iron \u2192 Bronze \u2192 Silver \u2192 Gold \u2192 Diamond. Rank gates what gear you can equip, which essences and familiars you can bind \u2014 and your essences deepen automatically as you rise.")}
+  ${S("Combat","Attack builds \u27E1 Focus (+1); Defend halves damage and restores Focus and MP. Abilities cost MP; essence powers cost Focus. Watch for weaknesses \u2014 beasts fear spellfire, cultists and coven-flesh fall to steel, the undead are unmade by raw essence. Matching a weakness hits ~1.8x.")}
+  ${S("Damage & Wards","Physical damage is blunted by DEF (armor). Magic ignores armor \u2014 only \uD83D\uDD2F ward reduces it. Advanced armors carry ward; choose your plate for the foe ahead.")}
+  ${S("The Forge","Temper weapons (+2 ATK) and reinforce armor (+1 DEF) with gold. ASCEND gear a full rank with gold + a Quintessence of the target rank: +8 ATK, or +6 DEF & +2 ward. Quintessences drop from hoards and bosses, or sell dearly at the Apothecary.")}
+  ${S("Familiars","Bind companions at the Menagerie \u2014 they act on their own each round after you. Capacity grows with rank (1 at Iron up to 5 at Gold); Mages and Clerics bind one extra at Bronze/Silver. Many small allies share your bond \u2014 each grows a little weaker per extra familiar bound.")}
+  ${S("Staying Alive","Drink potions or cast heals from the dungeon map between fights. Devour slain beasts for free healing \u2014 but tainted meat carries poison. If you fall, you revive in town for half your gold.")}
+  ${S("Your Save","The game saves after every action on this device. Use Export/Import on the title screen to move your hero between devices or keep a backup.")}
+  <button class="btn ghost" data-act="goto" data-arg="title">\u25C2 Back</button></div>`;}
+function scrMenagerie(){const p=G.p,cap=famCap();
+  const rows=Object.keys(FAMILIARS).map(id=>{const f=FAMILIARS[id],owned=p.familiars.includes(id),active=p.activeFams.includes(id),locked=rankIndex()<f.rank,afford=p.coins>=f.price;
+    let btn;
+    if(active)btn=`<button class="buy" data-act="fam-toggle" data-arg="${id}">Dismiss</button>`;
+    else if(owned)btn=`<button class="buy" data-act="fam-toggle" data-arg="${id}" ${p.activeFams.length<cap?'':'disabled'} style="border-color:var(--gold);color:var(--gold)">Bind</button>`;
+    else if(locked)btn=`<button class="buy" disabled>${RANKS[f.rank].ic} ${RANKS[f.rank].name}+</button>`;
+    else btn=`<button class="buy" data-act="buy-fam" data-arg="${id}" ${afford?'':'disabled'}>${f.price}\uD83E\uDE99</button>`;
+    return `<div class="row" style="${active?'border-color:var(--gold);box-shadow:0 0 12px var(--gold-glow);':''}${locked?'opacity:.6;':''}"><span class="ic">${f.ic}</span><div class="info"><b>${f.name}${active?' <span style="color:#9be86f">\u25CF bound</span>':''} <span style="color:${RANKS[f.rank].color};font-size:10px">${RANKS[f.rank].name}</span></b><span>${f.desc}</span></div>${btn}</div>`;}).join("");
+  return `<div><h2 class="head">\uD83E\uDD89 The Menagerie</h2><p class="sub">"Every hero needs teeth in the dark that aren't their own. They fight beside you of their own will \u2014 bound: <b style="color:var(--gold)">${p.activeFams.length}/${cap}</b>. Higher rank binds more${(G.cls==='mage'||G.cls==='cleric')?', and your craft binds extra':''}."</p>
+  ${rows}<button class="btn ghost" data-act="goto" data-arg="town">\u25C2 Back to town</button></div>`;}
 function scrCredits(){const p=G.p;
   const line=(role,who)=>`<div style="margin:10px 0"><div style="font-family:var(--mono);font-size:10px;letter-spacing:.18em;color:var(--ink-dim);text-transform:uppercase">${role}</div><div style="font-family:var(--display);color:var(--parch);font-size:17px">${who}</div></div>`;
   return `<div class="title-hero" style="padding-top:30px"><div class="crest" style="font-size:54px">\uD83D\uDC09</div>
@@ -1033,7 +1144,7 @@ const BOSS_IDS=["ratking","hobgoblin","faequeen","necro","brigand","ogre","drago
 const CHAPTERS=[
   {town:"Emberfall",title:"The Red Dragon",finaleLevel:9,
     story:["rats","goblins","lake","crypt","bandits","ogre"],
-    finale:{id:"finale",name:"\u27F6 DEFEND EMBERFALL \u27F5",ic:"\uD83D\uDC09",boss:"dragon",tier:5,xp:1200,place:"the burning square at the heart of Emberfall",desc:"The Red Dragon has descended. Fire rains from the sky. Stand, hero \u2014 and end this."},
+    finale:{id:"finale",name:"\u27F6 DEFEND EMBERFALL \u27F5",ic:"\uD83D\uDC09",boss:"dragon",tier:4,xp:1200,place:"the burning square at the heart of Emberfall",desc:"The Red Dragon has descended. Fire rains from the sky. Stand, hero \u2014 and end this."},
     alertTitle:"The Dragon Has Come",alert:"A shadow blots out the sun. Fire falls on the rooftops. The Red Dragon circles the square. Emberfall looks to you.",
     finaleVerb:"Face the Dragon",
     victory:"The Red Dragon crashes into the square and moves no more. The fires gutter out \u2014 but a rider from Hollowmere is already at the gate, begging for aid.",
@@ -1041,7 +1152,7 @@ const CHAPTERS=[
   {town:"Hollowmere",title:"The Sunless Deep",finaleLevel:12,
     intro:"A mining town gone quiet. A shaft collapsed, miners are trapped below \u2014 and the thing that caused it is still down there.",
     story:["cavein","tunnels","warren"],
-    finale:{id:"finale",name:"\u27F6 INTO THE DEEP \u27F5",ic:"\uD83E\uDEB1",boss:"worm",tier:3,xp:1400,place:"the lightless gut of the mountain",desc:"Gorlathar, the worm that swallowed the mine, coils in the dark with the lost behind it. Go down. End it."},
+    finale:{id:"finale",name:"\u27F6 INTO THE DEEP \u27F5",ic:"\uD83E\uDEB1",boss:"worm",tier:1,xp:1400,place:"the lightless gut of the mountain",desc:"Gorlathar, the worm that swallowed the mine, coils in the dark with the lost behind it. Go down. End it."},
     alertTitle:"The Deep Stirs",alert:"The ground shudders. Gorlathar has surfaced near the shafts \u2014 the way down is open, and the lost are still below.",
     finaleVerb:"Descend to the Worm",
     victory:"Gorlathar thrashes its last and goes still. The trapped miners stumble into torchlight, alive. But word arrives from Ashfall: a hooded cult has seized the town.",
@@ -1049,7 +1160,7 @@ const CHAPTERS=[
   {town:"Ashfall",title:"The Sorcerer Cult",finaleLevel:15,
     intro:"A town choking under a hooded cult. Their sorcerer means to rule it \u2014 or burn it to ash.",
     story:["chapel","sanctum","ritual"],
-    finale:{id:"finale",name:"\u27F6 BREAK THE CULT \u27F5",ic:"\uD83D\uDD2E",boss:"cultlord",tier:3,xp:2000,place:"the sorcerer's burning sanctum",desc:"Malphas stands at the heart of his ritual, half a god already. Cut him down before the working completes."},
+    finale:{id:"finale",name:"\u27F6 BREAK THE CULT \u27F5",ic:"\uD83D\uDD2E",boss:"cultlord",tier:1,xp:2000,place:"the sorcerer's burning sanctum",desc:"Malphas stands at the heart of his ritual, half a god already. Cut him down before the working completes."},
     alertTitle:"The Ritual Begins",alert:"Green fire crowns the chapel spire. Malphas has begun the final working \u2014 there is no more time to prepare.",
     finaleVerb:"Confront Malphas",
     victory:"Malphas burns in his own fire and the cult scatters. Ashfall breathes again \u2014 but the graves of Gravemoor have begun to open on their own.",
@@ -1057,7 +1168,7 @@ const CHAPTERS=[
   {town:"Gravemoor",title:"The Undead Tide",finaleLevel:18,
     intro:"A town besieged by its own dead. Something beneath the graveyard is calling them up by the thousand.",
     story:["boneyard","mausoleum","catacombs"],
-    finale:{id:"finale",name:"\u27F6 END THE LICH \u27F5",ic:"\uD83D\uDC51",boss:"lich",tier:3,xp:2800,place:"the Lich King's throne of bone",desc:"Vorthrak the Lich King sits enthroned in the deep catacombs, the tide pouring from his will. Unmake him."},
+    finale:{id:"finale",name:"\u27F6 END THE LICH \u27F5",ic:"\uD83D\uDC51",boss:"lich",tier:1,xp:2800,place:"the Lich King's throne of bone",desc:"Vorthrak the Lich King sits enthroned in the deep catacombs, the tide pouring from his will. Unmake him."},
     alertTitle:"The Tide Rises",alert:"Every grave in Gravemoor stands open. Vorthrak has thrown wide his throne-room doors \u2014 face him, or be buried.",
     finaleVerb:"Face the Lich King",
     victory:"Vorthrak's crown clatters empty to the floor and the risen dead fall still forever. As you ride out, ravens follow \u2014 the witches of Hexwood know your name now, and they have not forgotten old grudges.",
@@ -1065,7 +1176,7 @@ const CHAPTERS=[
   {town:"Hexwood",title:"The Coven's Revenge",finaleLevel:21,isLast:true,
     intro:"The last road ends at Hexwood, where a coven of witches waits. They have hunted you across every town \u2014 and they mean to finish it.",
     story:["bog","coven","thorns"],
-    finale:{id:"finale",name:"\u27F6 THE WITCH QUEEN \u27F5",ic:"\uD83D\uDC51",boss:"witchqueen",tier:4,xp:4000,place:"the thorn-throne at the heart of Hexwood",desc:"Morgath, the Witch Queen, has gathered every curse her coven ever wove into one. This is the last fight. Make it count."},
+    finale:{id:"finale",name:"\u27F6 THE WITCH QUEEN \u27F5",ic:"\uD83D\uDC51",boss:"witchqueen",tier:1,xp:4000,place:"the thorn-throne at the heart of Hexwood",desc:"Morgath, the Witch Queen, has gathered every curse her coven ever wove into one. This is the last fight. Make it count."},
     alertTitle:"The Coven Gathers",alert:"The thorns part. Morgath calls you to the throne at the heart of Hexwood. After this, there is no more road.",
     finaleVerb:"Face the Witch Queen",
     victory:"Morgath unravels into the thorns that bore her, and the long road goes quiet at last. Five towns stand because you would not. Your legend is finished \u2014 and it will never be forgotten.",
@@ -1174,7 +1285,7 @@ function markDead(e){if(e.dead)return;e.dead=true;clog(`${e.name} is slain!`,'sy
   if(e.coins){G.p.coins+=e.coins;G.runSpoils.gold+=e.coins;}
   G.combat.xp+=e.xp;if(!G.combat.morphs)rollDrops(G.combat.isBoss);}
 function checkWin(){if(!G.combat.over&&livingFoes().length===0)winRoom();}
-function pAttack(){const c=G.combat;if(c.over||c.busy)return;clearFx();const e=curTarget();if(!e)return;
+function pAttack(){const _c=G.combat;if(_c&&_c.focusMax)_c.focus=Math.min(_c.focusMax,_c.focus+1);const c=G.combat;if(c.over||c.busy)return;clearFx();const e=curTarget();if(!e)return;
   const r=playerWeaponDmg(e);applyToEnemy(e,r.dmg,r.crit,"Your strike",'physical');c.menu=null;checkWin();afterPlayer();}
 function pDefend(){const c=G.combat;if(c.over||c.busy)return;c.defending=true;G.p.mp=Math.min(G.p.maxMp,G.p.mp+2);
   let f="";if(c.focusMax){c.focus=Math.min(c.focusMax,c.focus+1);f=" \u27E1+1";}
@@ -1212,7 +1323,7 @@ function pItem(id){const it=POTIONS[id],p=G.p,c=G.combat;if(c.over||c.busy)retur
   else if(it.effect==='cure'){const had=c.playerStatuses.length;c.playerStatuses=[];clog(had?`The ${it.name} purges the venom from your blood.`:`You drink the ${it.name} \u2014 no poison to cure.`,'heal');}afterPlayer();}
 function pFlee(){const c=G.combat;if(c.over||c.busy||c.isBoss)return;if(rng(100)<55){Sound.play('flee');clog("You break away and flee!",'sys');c.over=true;c.result='flee';render();}
   else{clog("You try to flee \u2014 but can't escape!",'foe');c.menu=null;afterPlayer();}}
-function afterPlayer(){if(G.combat.over){render();return;}scheduleEnemyPhase(640);scrollLog();}
+function afterPlayer(){if(G.combat.over){render();return;}famAct();if(G.combat.over){render();return;}scheduleEnemyPhase(640);scrollLog();}
 function tickPlayerStatuses(){const c=G.combat;(c.playerStatuses||[]).forEach(s=>{G.p.hp-=s.power;clog(`You take ${s.power} ${s.type} damage.`,'foe');s.turns--;});c.playerStatuses=(c.playerStatuses||[]).filter(s=>s.turns>0);}
 function tickEnemyStatuses(e){e.statuses.forEach(s=>{e.hp-=s.power;e.fx={text:'-'+s.power,color:'#9be86f'};clog(`${e.name} suffers ${s.power} ${s.type}.`,'you');s.turns--;});e.statuses=e.statuses.filter(s=>s.turns>0);if(e.hp<=0)markDead(e);}
 function enemyPhase(){const c=G.combat;if(!c||c.over)return;c.busy=false;clearFx();
@@ -1254,7 +1365,8 @@ function rollDrops(isBoss){const d=G.dungeon||{};const L=LOOT[d.lootKey||d.id]||
   let gf=false;(L.gear||[]).forEach(gg=>{const ch=isBoss?Math.round((gg[2]+8)*ls):Math.round(gg[2]*0.3*ls);if(!gf&&rng(100)<ch){queueGear(gg[0],gg[1]);gf=true;}});
   if(isBoss&&rng(100)<Math.round(16*ls))queueRelic();
   if(isBoss&&rng(100)<Math.round(24*ls))queueEssence();
-  if(isBoss&&rng(100)<Math.round(14*ls))rollSpecial();}
+  if(isBoss&&rng(100)<Math.round(14*ls))rollSpecial();
+  if(isBoss&&rng(100)<20){const qid=QUINT_BY_RANK[Math.max(1,rankIndex())];G.p.quints=G.p.quints||{};G.p.quints[qid]=(G.p.quints[qid]||0)+1;toast(`Found ${QUINTS[qid].ic} ${QUINTS[qid].name}!`);}}
 function rollSearchLoot(){const d=G.dungeon;if(!d)return;const L=LOOT[d.lootKey||d.id]||{gold:[1,3],pots:[],gear:[]};
   if(rng(100)<55){const g=randRange(L.gold);if(g>0){grantGold(g,true);clog(`\uD83E\uDE99 You scavenge ${g} gold from the chamber.`,'sys');}}
   (L.pots||[]).forEach(pp=>{if(rng(100)<Math.round(pp[1]*0.7)){grantPotion(pp[0]);clog(`\uD83E\uDDEA You find a ${POTIONS[pp[0]].name}.`,'sys');}});
@@ -1285,7 +1397,7 @@ function resolveLoot(equip){const item=G.gearLoot.shift();
   if(G.lootReturn==='dungeon'){G.lootReturn=null;G.screen='dungeon';render();}
   else{G.lootReturn=null;advanceDungeon();}}
 function postCombat(){if(G.gearLoot.length){G.lootReturn='advance';showLoot();return;}advanceDungeon();}
-function loseCombat(){G.combat.over=true;G.combat.result='lose';Sound.play('death');clog("You collapse...",'foe');render();scrollLog();
+function loseCombat(){const _c=G.combat;if(_c&&!_c.phoenixUsed&&(G.p.activeFams||[]).includes('phoenix')){_c.phoenixUsed=true;G.p.hp=Math.round(G.p.maxHp*0.4);Sound.play('levelup');clog('\uD83D\uDC26\u200D\uD83D\uDD25 Your Ash Phoenix ignites \u2014 and you RISE FROM THE ASHES!','crit');render();return;}G.combat.over=true;G.combat.result='lose';Sound.play('death');clog("You collapse...",'foe');render();scrollLog();
   setTimeout(()=>{G.screen="death";render();},1100);}
 function combatEnd(){const c=G.combat;
   if(c.result==='flee'){G.combat=null;G.dungeon=null;G.map=null;G.roomIdx=0;G.queue=[];G.screen="town";checkDragonTrigger();render();return;}
@@ -1373,6 +1485,7 @@ function grantCellLoot(){const d=G.dungeon,L=LOOT[d.lootKey||d.id]||{gold:[1,3],
   if(rng(100)<Math.round(6*ls))queueRelic();
   if(rng(100)<Math.round(7*ls))queueEssence();
   if(rng(100)<Math.round(7*ls))rollSpecial();
+  if(rng(100)<10){const qid=QUINT_BY_RANK[Math.max(1,rankIndex())];G.p.quints=G.p.quints||{};G.p.quints[qid]=(G.p.quints[qid]||0)+1;found.push(QUINTS[qid].ic+' '+QUINTS[qid].name);}
   Sound.play('loot');toast(found.length?('Treasure: '+found.join(', ')):'The chest holds only dust.');}
 function fieldItem(id){const it=POTIONS[id],p=G.p;const infinite=(id==='minor'&&hasRelic('bag'));if(!it||(!p.inv[id]&&!infinite))return;
   if(it.effect==='hp'&&p.hp>=p.maxHp){toast("Already at full HP");return;}
@@ -1453,9 +1566,9 @@ function buy(arg){const parts=arg.split(":"),kind=parts[0],id=parts[1],p=G.p;
   render();}
 function sell(arg){const parts=arg.split(":"),kind=parts[0],id=parts[1],p=G.p;
   if(kind==='weapon'){const it=WEAPONS[id];if(!it||!it.price||p.weapon===id||!p.ownedWeapons.includes(id))return;
-    p.ownedWeapons=p.ownedWeapons.filter(w=>w!==id);if(p.weaponPlus)delete p.weaponPlus[id];const v=sellValue(it.price);p.coins+=v;toast(`Sold ${it.name} for ${v} gold`);}
+    p.ownedWeapons=p.ownedWeapons.filter(w=>w!==id);if(p.weaponPlus)delete p.weaponPlus[id];if(p.weaponAsc)delete p.weaponAsc[id];const v=sellValue(it.price);p.coins+=v;toast(`Sold ${it.name} for ${v} gold`);}
   else if(kind==='armor'){const it=ARMORS[id];if(!it||!it.price||p.armor===id||!p.ownedArmor.includes(id))return;
-    p.ownedArmor=p.ownedArmor.filter(a=>a!==id);if(p.armorPlus)delete p.armorPlus[id];const v=sellValue(it.price);p.coins+=v;toast(`Sold ${it.name} for ${v} gold`);}
+    p.ownedArmor=p.ownedArmor.filter(a=>a!==id);if(p.armorPlus)delete p.armorPlus[id];if(p.armorAsc)delete p.armorAsc[id];const v=sellValue(it.price);p.coins+=v;toast(`Sold ${it.name} for ${v} gold`);}
   else if(kind==='potion'){const it=POTIONS[id];if(!it||!it.price||!(p.inv[id]>0))return;
     p.inv[id]--;const v=sellValue(it.price);p.coins+=v;toast(`Sold ${it.name} for ${v} gold`);}
   render();}
@@ -1472,15 +1585,28 @@ document.addEventListener('click',(ev)=>{const el=ev.target.closest('[data-act]'
     case 'setgender':G.gender=arg;render();break;
     case 'setclass':G.cls=arg;render();break;
     case 'begin':if(!G.gender||!G.cls)return;_pendingSave=null;deleteSave();G.p=makeHero();G.screen="town";render();break;
+    case 'do-import':{const el=document.getElementById('importbox');const v=el&&el.value;if(importCode(v)){toast('Save imported \u2014 welcome back');render();}else toast('That code is not a valid save');break;}
+    case 'buy-fam':{const fm=FAMILIARS[arg];if(!fm||rankIndex()<fm.rank||G.p.coins<fm.price||G.p.familiars.includes(arg))return;G.p.coins-=fm.price;G.p.familiars.push(arg);if(G.p.activeFams.length<famCap())G.p.activeFams.push(arg);Sound.play('levelup');toast(`${fm.ic} ${fm.name} joins you!`);render();break;}
+    case 'fam-toggle':{const fm=FAMILIARS[arg];if(!fm||!G.p.familiars.includes(arg))return;const i=G.p.activeFams.indexOf(arg);
+      if(i>=0){G.p.activeFams.splice(i,1);toast(`${fm.name} dismissed`);}
+      else{if(G.p.activeFams.length>=famCap()){toast(`Your rank binds at most ${famCap()}`);return;}G.p.activeFams.push(arg);Sound.play('click');toast(`${fm.ic} ${fm.name} bound`);}
+      render();break;}
+    case 'ascend':{const [kind,id]=arg.split(':');if(!canAscend(kind,id))return;const c=ascendCost(kind,id);
+      if(G.p.coins<c.coins||quintCount(c.quint)<1){toast("You lack the coin or quintessence");return;}
+      G.p.coins-=c.coins;G.p.quints[c.quint]--;
+      const map=kind==='weapon'?(G.p.weaponAsc=G.p.weaponAsc||{}):(G.p.armorAsc=G.p.armorAsc||{});
+      map[id]=(map[id]||0)+1;Sound.play('levelup');
+      toast(`\u2726 ${(kind==='weapon'?WEAPONS:ARMORS)[id].name} forged to ${RANKS[c.target].name}!`);render();break;}
+    case 'buy-quint':{const q=QUINTS[arg];if(!q||rankIndex()<q.rank||G.p.coins<q.price)return;G.p.coins-=q.price;G.p.quints=G.p.quints||{};G.p.quints[arg]=(G.p.quints[arg]||0)+1;Sound.play('coin');toast(`Bought ${q.name}`);render();break;}
     case 'cheat':if(G.p){G.screen='cheat';render();}break;
-    case 'cheat-chapter':{const ci=Math.max(0,Math.min(CHAPTERS.length-1,parseInt(arg,10)||0));G.chapter=ci;G.flags.dragonAppeared=false;G.flags.dragonDefeated=false;G.flags.completed=G.flags.completed||{};G.p.hp=G.p.maxHp;G.p.mp=G.p.maxMp;cheatEssLevels();toast(`Jumped to Ch ${ci+1} \u00B7 ${RANKS[ci].name}`);G.screen='town';render();break;}
-    case 'cheat-level':{const n=parseInt(arg,10)||1;for(let i=0;i<n;i++){if(XP_TABLE[G.p.level+1]){G.p.xp=XP_TABLE[G.p.level+1];levelUp();}}G.afterLevelup=null;G.levelupData=null;cheatEssLevels();toast('Level '+G.p.level);G.screen='cheat';render();break;}
+    case 'cheat-chapter':{const ci=Math.max(0,Math.min(CHAPTERS.length-1,parseInt(arg,10)||0));G.chapter=ci;G.flags.dragonAppeared=false;G.flags.dragonDefeated=false;G.flags.completed=G.flags.completed||{};G.p.hp=G.p.maxHp;G.p.mp=G.p.maxMp;syncEssLevels();toast(`Jumped to Ch ${ci+1} \u00B7 ${RANKS[ci].name}`);G.screen='town';render();break;}
+    case 'cheat-level':{const n=parseInt(arg,10)||1;for(let i=0;i<n;i++){if(XP_TABLE[G.p.level+1]){G.p.xp=XP_TABLE[G.p.level+1];levelUp();}}G.afterLevelup=null;G.levelupData=null;syncEssLevels();toast('Level '+G.p.level);G.screen='cheat';render();break;}
     case 'cheat-gold':{G.p.coins+=parseInt(arg,10)||1000;toast('+'+arg+' gold');render();break;}
     case 'cheat-heal':{G.p.hp=G.p.maxHp;G.p.mp=G.p.maxMp;toast('Restored');render();break;}
-    case 'cheat-essences':{Object.keys(ESSENCES).forEach(id=>{if(!G.p.essences.includes(id))G.p.essences.push(id);});while(G.p.attuned.length<essCap()){const nx=G.p.essences.find(id=>!G.p.attuned.includes(id));if(!nx)break;G.p.attuned.push(nx);}cheatEssLevels();toast('All essences granted, leveled to rank');G.screen='cheat';render();break;}
+    case 'cheat-essences':{Object.keys(ESSENCES).forEach(id=>{if(!G.p.essences.includes(id))G.p.essences.push(id);});while(G.p.attuned.length<essCap()){const nx=G.p.essences.find(id=>!G.p.attuned.includes(id));if(!nx)break;G.p.attuned.push(nx);}syncEssLevels();toast('All essences granted, leveled to rank');G.screen='cheat';render();break;}
     case 'cheat-finale':{G.flags.dragonAppeared=true;G.flags.dragonDefeated=false;toast("Boss available on the board");G.screen='board';render();break;}
     case 'cheat-finalboss':{G.chapter=CHAPTERS.length-1;G.flags.dragonAppeared=true;G.flags.dragonDefeated=false;G.p.hp=G.p.maxHp;G.p.mp=G.p.maxMp;enterDungeon('finale');break;}
-    case 'next-chapter':{G.chapter=(G.chapter||0)+1;G.flags.dragonAppeared=false;G.flags.dragonDefeated=false;G.flags.missionsDone=0;G.contracts=[];G.p.hp=G.p.maxHp;G.p.mp=G.p.maxMp;G.screen="town";render();break;}
+    case 'next-chapter':{G.chapter=(G.chapter||0)+1;G.flags.dragonAppeared=false;G.flags.dragonDefeated=false;G.flags.missionsDone=0;G.contracts=[];G.p.hp=G.p.maxHp;G.p.mp=G.p.maxMp;syncEssLevels();toast('\u27E1 Your essences deepen with your new rank');G.screen="town";render();break;}
     case 'setdiff':if(DIFFICULTIES[arg]){G.difficulty=arg;Sound.play('click');render();}break;
     case 'enter':enterDungeon(arg);break;
     case 'advance':stepForward();break;
@@ -1588,7 +1714,7 @@ function applySave(snap){
   G=Object.assign(base,snap);
   // migrate older saves: backfill player fields added in newer versions
   if(G.p){
-    const defaults={essences:[],attuned:[],essLvl:{},essUse:{},weaponPlus:{},armorPlus:{},relics:[],
+    const defaults={essences:[],attuned:[],essLvl:{},essUse:{},weaponPlus:{},armorPlus:{},weaponAsc:{},armorAsc:{},quints:{},familiars:[],activeFams:[],relics:[],
       ownedWeapons:[G.p.weapon],ownedArmor:[G.p.armor||'none'],inv:{},carriedPoison:null};
     for(const k in defaults){if(G.p[k]===undefined||G.p[k]===null)G.p[k]=defaults[k];}
   }
